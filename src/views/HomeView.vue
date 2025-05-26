@@ -12,7 +12,7 @@
         <p class="py-2" v-if="searchError">Sorry, something went wrong, please try again.</p>
         <p class="py-2" v-if="!searchError && mapboxSearchResults.length === 0">No results match your query, try a different term.</p>
         <template v-else>
-          <li v-for="searchResult in mapboxSearchResults" :key="searchResult.id" class="py-2 cursor-pointer">
+          <li @click="previewCity(searchResult)" v-for="searchResult in mapboxSearchResults" :key="searchResult.id" class="py-2 cursor-pointer">
             {{ searchResult.place_name }}
           </li>
         </template>
@@ -24,6 +24,22 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const previewCity = (searchResult) => {
+  console.log(searchResult);
+  const [city, state] = searchResult.place_name.split(',');
+  router.push({
+    name: "city",
+    params: { state: state.replaceAll(" ", ""), city: city},
+    query: {
+      longitude: searchResult.geometry.coordinates[0],
+      latitude: searchResult.geometry.coordinates[1],
+      preview: true,
+    }
+  })
+};
 const mapboxAPIKey = 'pk.eyJ1Ijoiam9obmtvbWFybmlja2kiLCJhIjoiY2t5NjFzODZvMHJkaDJ1bWx6OGVieGxreSJ9.IpojdT3U3NENknF6_WhR2Q';
 const searchQuery = ref('');
 const queryTimeout = ref(null);
